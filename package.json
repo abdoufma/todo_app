@@ -1,0 +1,26 @@
+{
+  "name": "test-app",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@types/serve-handler": "^6.1.4",
+    "bun-plugin-tailwind": "^0.0.14",
+    "tailwind": "^4.0.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "electrobun": "^0.0.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "serve-handler": "^6.1.6"
+  },
+  "scripts": {
+    "start": "bun run build:dev && electrobun dev",
+    "build:dev": "bun electrobun build",
+    "serve": "bun --hot src/bun/server",
+    "clean": "rm -rf build"
+  }
+}
