@@ -26,8 +26,9 @@
     "baseUrl": ".",
     "paths": {
       "@/public/*": ["src/public/*"],
-      "@/app/*": ["app/*"],
-    },
+      "@/app/*": ["frontend/*"],
+      "@/db": ["./main.db"],
+    }
   },
-  // "include": ["bun/**/*", "src/**/*"],
+  // "include": ["./main.db"],
 }
