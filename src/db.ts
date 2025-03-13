@@ -1,7 +1,8 @@
 import { Database } from "bun:sqlite";
-import { homedir } from "os";
+import { app } from "electron"
+import { join } from "path"
 
-const dbPath = homedir() + "/Desktop/todo.db";
+const dbPath = join(app.getPath("userData"), "todo.db");
 console.log("Database path : `%s`", dbPath);
 
 const db = new Database(dbPath, {create: true, readwrite : true});
@@ -33,20 +34,14 @@ export function saveTodo(todo: Todo) {
   return db.query(`INSERT INTO todos (text, completed) VALUES (?, ?)`).run(todo.text, todo.completed);
 }
 
-export function getTodos() {
-  return db.
-  query(`SELECT * FROM todos`)
-  .all()
-  .map(decodeTodo);
-}
+
+export const getTodos = () => db.query(`SELECT * FROM todos`).all().map(decodeTodo);
 
 export function updateTodo(id : number, todo: Todo) {
   return db.query(`UPDATE todos SET text = ?, completed = ? WHERE id = ?`).run(todo.text, todo.completed, id);
 }
 
-export function deleteTodo(id: number) {
-  return db.query(`DELETE FROM todos WHERE id = ?`).run(id);
-}
+export const deleteTodo = (id: number) => db.query(`DELETE FROM todos WHERE id = ?`).run(id);
 
 
 async function test() {

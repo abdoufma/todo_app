@@ -65,4 +65,12 @@ app.delete('/api/todos/:id', (req, res) => {
 
 const server = app.listen(port, () => console.log(`Server running at port ${port}`));
 
-export default server;
+server.on('close', () => {
+    console.log('Express Server closed');
+});
+
+process.on('exit', () => {
+    console.log('Server Process exited');
+});
+
+// export default server;

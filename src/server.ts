@@ -1,6 +1,6 @@
 import type { BunRequest } from 'bun';
-import { deleteTodo, getTodoById, getTodos, saveTodo, updateTodo } from './db';
-import { serveStatic } from './utils';
+import { closeDb, deleteTodo, getTodoById, getTodos, saveTodo, updateTodo } from './db';
+import { log, serveStatic } from './utils';
 
 
 const CORS_HEADERS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'OPTIONS, POST', 'Access-Control-Allow-Headers': 'Content-Type' };
@@ -8,7 +8,7 @@ const CORS_HEADERS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow
 type SERVE = Parameters<typeof Bun.serve>[0];
 
 export const serveConfig : SERVE = {
-    port : 3000,
+    port : process.env.PORT || 3000,
     fetch (req) {
         return serveStatic(req);
     },
@@ -52,16 +52,49 @@ export const serveConfig : SERVE = {
             }
         }
     },
-
 }
 
-export const server = null //Bun.serve(serveConfig)
 
-// console.log('Server running at port', server.port);
+process.on('message', (m) => {
+    log('[SERVER] got message:', m);
+});
+
+process.on("SIGABRT", () => {
+    log("SIGABRT received");
+    closeDb();
+    server.stop();
+});
+  
+import readline from 'readline';
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout,
+  terminal: false
+});
+
+rl.on('line', (line) => {
+  try {
+    const msg = JSON.parse(line);
+    // Handle the message here. For example:
+    if (msg.event === 'init') {
+      // Do initialization work
+      // Optionally send a reply:
+      process.stdout.write(JSON.stringify({ status: 'initialized' }) + '\n');
+    }
+    // Add more event handling as needed.
+  } catch (err) {
+    console.error('Failed to parse incoming message:', line);
+  }
+});
+
+export const server = Bun.serve(serveConfig)
+
+log('Server running at port', server.port);
 
 
 // OLD WAY : 
 // import handler from 'serve-handler';
 // import http from 'http';
 // const server = http.createServer((req, res) =>  handler(req, res, { public: PUBLIC_DIR }));
-// server.listen(3000, () => console.log('Running at http://localhost:3000'));
+// server.listen(3000, () => log('Running at http://localhost:3000'));

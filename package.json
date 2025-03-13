@@ -16,14 +16,19 @@
   "dependencies": {
     "cors": "^2.8.5",
     "electrobun": "^0.0.18",
+    "electron": "^35.0.1",
     "express": "^4.21.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "serve-handler": "^6.1.6"
+    "serve-handler": "^6.1.6",
+    "webview-bun": "^2.3.0"
   },
   "scripts": {
     "start": "bun run build:dev && electrobun dev",
     "build:dev": "bun electrobun build",
+    "bundle": "bun build --compile --minify --sourcemap src/bunview.ts src/express_server.ts --outfile webserver",
+    "bundle:server": "bun build --compile --minify  src/express_server.ts --outfile webserver && bun cp",
+    "cp": "cp webserver /Users/abdou/projects/tmp/remed-electron-app/remed-app-vite/bin/webserver",
     "serve": "bun --hot src/server",
     "clean": "rm -rf build",
     "build:stable": "electrobun build env=stable"
