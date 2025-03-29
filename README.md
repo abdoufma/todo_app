@@ -1,15 +1,20 @@
-# electrobun-test
+# todo app (backend)
 
-To install dependencies:
-
-```bash
-bun install
+0. if you havent cloned the frontend repo yet, do : 
+```
+git submodule add https://github.com/abdoufma/todo_app_frontend frontend
 ```
 
-To run:
+1. Update your `copy` script to point to your actual electron shell
+
+2. To Bundle the server:
 
 ```bash
-bun run index.ts
+bun run bundle
 ```
 
-This project was created using `bun init` in bun v1.2.3. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+3. To run the server standalone:
+
+```bash
+bun start
+```

@@ -23,10 +23,10 @@
   },
   "scripts": {
     "start": "bun run src/server",
-    "build:dev": "bun run --hot src/server",
-    "bundle": "bun build --compile --minify  src/server.ts --outfile webserver && bun cp",
-    "cp": "cp webserver path/to/remed-app-vite/bin/webserver",
-    "cp:example": "cp webserver /Users/abdou/projects/tmp/remed-electron-app/remed-app-vite/bin/webserver",
+    "dev": "bun run --hot src/server",
+    "bundle": "bun build --compile --minify  src/server.ts --outfile webserver && bun copy:example",
+    "copy": "cp webserver path/to/remed-app-vite/bin/webserver",
+    "copy:example": "cp webserver /Users/abdou/projects/tmp/remed-electron-app/remed-app-vite/bin/webserver",
     "clean": "rm -rf webserver"
   }
 }
