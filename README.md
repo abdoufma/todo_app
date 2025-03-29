@@ -1,8 +1,8 @@
 # todo app (backend)
 
-0. if you havent cloned the frontend repo yet, do : 
+0. Clone the repo using the `--recurse-submodules` flag (to get the frontend repo) : 
 ```
-git submodule add https://github.com/abdoufma/todo_app_frontend frontend
+git clone --recurse-submodules https://github.com/abdoufma/todo_app.git
 ```
 
 1. Update your `copy` script to point to your actual electron shell
