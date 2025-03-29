@@ -1,3 +1,3 @@
 [submodule "app"]
 	path = frontend
-	url = https://github.com/abdoufma/electrobun-frontend.git
+	url = https://github.com/abdoufma/todo_app_frontend.git
