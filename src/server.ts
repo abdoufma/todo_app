@@ -1,100 +1,88 @@
-import type { BunRequest } from 'bun';
-import { closeDb, deleteTodo, getTodoById, getTodos, saveTodo, updateTodo } from './db';
-import { log, serveStatic } from './utils';
+import express from 'express';
+import { closeDb, deleteTodo,  getTodoById,  getTodos,  saveTodo,  updateTodo } from './db';
+import { log, PUBLIC_DIR } from './utils';
+import cors from 'cors';
+
+const app = express();
+const port = 3000;
+
+app.use(cors());
+app.use(express.json());
+app.use(express.static(PUBLIC_DIR));
+
+// GET all todos
+app.get('/api/todos', (_, res) => {
+    try {
+        const todos = getTodos();
+        res.json(todos);
+    } catch (err) {
+        res.status(500).json({ message: (err as Error).message });
+    }
+});
+
+// POST create todo
+app.post('/api/todos', async (req, res) => {
+    try {
+        const saved = saveTodo(req.body);
+        res.status(201).json(saved);
+    } catch (err) {
+        res.status(400).json({ message: (err as Error).message });
+    }
+});
+
+// GET todo by ID
+app.get('/api/todos/:id', (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const todo = getTodoById(id);
+        res.json(todo);
+    } catch (err) {
+        res.status(404).json({ message: (err as Error).message });
+    }
+});
+
+// PUT update todo
+app.put('/api/todos/:id', async (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const updated = updateTodo(id, req.body);
+        res.status(200).json(updated);
+    } catch (err) {
+        res.status(400).json({ message: (err as Error).message });
+    }
+});
+
+// DELETE todo
+app.delete('/api/todos/:id', (req, res) => {
+    try {
+        const id = Number(req.params.id);
+        const deleted = deleteTodo(id);
+        res.status(200).json(deleted);
+    } catch (err) {
+        res.status(400).json({ message: (err as Error).message });
+    }
+});
+
+const server = app.listen(port, () => log(`Server running on port ${port}`));
+
+server.on('close', () => {
+    log('Express Server closed');
+});
+
+process.on('exit', () => {
+    log('Server Process exited');
+});
 
 
-const CORS_HEADERS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'OPTIONS, POST', 'Access-Control-Allow-Headers': 'Content-Type' };
-
-type SERVE = Parameters<typeof Bun.serve>[0];
-
-export const serveConfig : SERVE = {
-    port : process.env.PORT || 3000,
-    fetch (req) {
-        return serveStatic(req);
-    },
-    error: (e) => new Response(`<h2>Error: ${e.message}<h2/>`, { status: 500, headers: { 'Content-Type': 'text/html' } }) ,
-    routes :{
-        "/api/todos" : {
-            GET : () => Response.json(getTodos(), { headers: CORS_HEADERS }),
-            POST : async (req) => {
-                const data = await req.json();
-                try {
-                    const saved = saveTodo(data);
-                    return Response.json({id : saved.lastInsertRowid}, { status: 201, headers: CORS_HEADERS });
-                } catch (err) {
-                    return Response.json({message : (err as Error).message}, { status: 400 , headers: CORS_HEADERS});
-                }
-            }
-        },
-        "/api/todos/:id" : {
-            GET : (req : BunRequest<`/api/todos/:id`>) => {
-                const id = Number(req.params.id);
-                return Response.json(getTodoById(id), {headers: CORS_HEADERS});
-            },
-            PUT : async (req : BunRequest<`/api/todos/:id`>) => {
-                const id = Number(req.params.id);
-                const data = await req.json();
-                try {
-                    const updated = updateTodo(id, data);
-                    return Response.json(updated, { status: 200 , headers: CORS_HEADERS });
-                } catch (err) {
-                    return Response.json({message : (err as Error).message}, { status: 400 , headers: CORS_HEADERS});
-                }
-            },
-            DELETE : (req : BunRequest<`/api/todos/:id`>) => {
-                const id = Number(req.params.id);
-                try {
-                    const deleted  = deleteTodo(id);
-                    return Response.json(deleted, { status: 200, headers: CORS_HEADERS  });
-                } catch (err) {
-                    return Response.json({message : (err as Error).message}, { status: 400, headers: CORS_HEADERS });
-                }
-            }
-        }
-    },
-}
-
-
-process.on('message', (m) => {
-    log('[SERVER] got message:', m);
+process.on('message', (m : any) => {
+    log('[SERVER] got message:', m.toString());
 });
 
 process.on("SIGABRT", () => {
     log("SIGABRT received");
     closeDb();
-    server.stop();
+    server.close();
 });
   
-import readline from 'readline';
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-});
-
-rl.on('line', (line) => {
-  try {
-    const msg = JSON.parse(line);
-    // Handle the message here. For example:
-    if (msg.event === 'init') {
-      // Do initialization work
-      // Optionally send a reply:
-      process.stdout.write(JSON.stringify({ status: 'initialized' }) + '\n');
-    }
-    // Add more event handling as needed.
-  } catch (err) {
-    console.error('Failed to parse incoming message:', line);
-  }
-});
-
-export const server = Bun.serve(serveConfig)
-
-log('Server running at port', server.port);
-
-
-// OLD WAY : 
-// import handler from 'serve-handler';
-// import http from 'http';
-// const server = http.createServer((req, res) =>  handler(req, res, { public: PUBLIC_DIR }));
-// server.listen(3000, () => log('Running at http://localhost:3000'));
+// export default server;

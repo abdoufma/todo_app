@@ -1,9 +1,10 @@
 import { Database } from "bun:sqlite";
-import { app } from "electron"
-import { join } from "path"
+import { join } from "node:path";
+import { appDir, log } from "./utils";
 
-const dbPath = join(app.getPath("userData"), "todo.db");
-console.log("Database path : `%s`", dbPath);
+
+const dbPath = join(appDir, "main.db");
+log("Database path : `%s`", dbPath);
 
 const db = new Database(dbPath, {create: true, readwrite : true});
 // import db from "../main.db" with { type: "sqlite", embed: "true" };
@@ -30,7 +31,7 @@ export function getTodoById(id: number) {
 }
 
 export function saveTodo(todo: Todo) {
-  console.log("saving new todo : `%s`", todo.text);
+  log("saving new todo : `%s`", todo.text);
   return db.query(`INSERT INTO todos (text, completed) VALUES (?, ?)`).run(todo.text, todo.completed);
 }
 
@@ -42,15 +43,6 @@ export function updateTodo(id : number, todo: Todo) {
 }
 
 export const deleteTodo = (id: number) => db.query(`DELETE FROM todos WHERE id = ?`).run(id);
-
-
-async function test() {
-  // const query = db.query(`INSERT INTO todos (text, completed) VALUES (?, ?)` );;
-  // db.query(`UPDATE todos SET text = ?, completed = ? WHERE id = ?`).run("Buy eggs (updated again)",  true, 2);
-  const todos = db.query(`SELECT * FROM todos`).as(Todo).all();
-  console.log(todos);
-}
-
 
 export const closeDb = db.close.bind(db);
 

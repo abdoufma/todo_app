@@ -2,13 +2,11 @@ import { join } from 'path';
 import { existsSync, mkdirSync } from "fs";
 import { appendFile } from "fs/promises";
 import chalk from "chalk";
-import { app } from "electron"
+import { homedir } from 'os';
 
-
-const logDir = app.getPath("userData"); 
-if (existsSync(logDir)) mkdirSync(logDir);
-console.log('Log Dir:', logDir);
-
+const APP_NAME = "remed-app-vite";
+export const appDir = process.platform === "win32" ? join(homedir(), "AppData/Roaming/", APP_NAME) : join(homedir(),"Library/Application Support/" , APP_NAME);
+if(!existsSync(appDir)) mkdirSync(appDir, {recursive: true});
 
 export const PUBLIC_DIR = join(__dirname, "../frontend/out");
 
@@ -20,27 +18,32 @@ export const serveStatic = async (req : Request, config : {root : string} = {roo
 
 
 
-export const log = async (...args : unknown[]) => {
-    console.log(chalk.whiteBright(args));
-    await appendFile(join(logDir, 'remed-server.log'), args.join(' ') + '\n');
+export const log = async <T extends string>(...args : T[]) => {
+    console.log(chalk.whiteBright(...args));
+    // add timestamp in YYYY-MM-DDTHH:mm:SS format:
+    const timestamp = new Date().toISOString().replace(/\..+/, '');
+    const logPath = join(appDir, 'remed-server.log');
+    await appendFile(logPath,`[${timestamp}] ${args.join(" ")}\n`);
 }
 
-export const logDebug = (...args : unknown[]) => {
-  console.log(chalk.blueBright(args));
+// await log("hello world");
+
+export const logDebug = <T extends string>(...args : T[]) => {
+  console.log(chalk.blueBright(...args));
 };
 
-export const logError = (...args : unknown[]) => {
-  console.log(chalk.redBright(args));
+export const logError = <T extends string>(...args : T[]) => {
+  console.log(chalk.redBright(...args));
 };
 
-export const logSuccess = (...args : unknown[]) => {
-  console.log(chalk.greenBright(args));
+export const logSuccess = <T extends string>(...args : T[]) => {
+  console.log(chalk.greenBright(...args));
 };
 
-export const logWarning = (...args : unknown[]) => {
-  console.log(chalk.yellowBright(args));
+export const logWarning = <T extends string>(...args : T[]) => {
+  console.log(chalk.yellowBright(...args));
 };
 
-export const logInfo = (...args : unknown[]) => {
-  console.log(chalk.cyanBright(args));
+export const logInfo = <T extends string>(...args : T[]) => {
+  console.log(chalk.cyanBright(...args));
 };
